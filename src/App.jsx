@@ -1,14 +1,17 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
   return (
-    <>
+    <BrowserRouter>
       <Navbar />
       <div className="container">
-        <h1>Welcome to EcoTrack</h1>
-        <p>Smart Community Waste Management System</p>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+        </Routes>
       </div>
-    </>
+    </BrowserRouter>
   );
 }
 
