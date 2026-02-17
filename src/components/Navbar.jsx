@@ -6,9 +6,11 @@ function Navbar() {
       <h2 style={{ color: "white", fontSize: "16px" }}>
         EcoTrack – Smart Community Waste Management System
       </h2>
+
       <div style={{ marginTop: "8px" }}>
         <Link to="/" style={linkStyle}>Dashboard</Link>
         <Link to="/report" style={linkStyle}>Report Waste</Link>
+        <Link to="/complaints" style={linkStyle}>Complaints</Link>
       </div>
     </nav>
   );

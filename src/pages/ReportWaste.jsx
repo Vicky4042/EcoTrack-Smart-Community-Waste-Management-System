@@ -21,15 +21,35 @@ function ReportWaste() {
       return;
     }
 
+    const newComplaint = {
+      id: Date.now(),
+      location,
+      type,
+      description,
+      status: "Pending",
+      createdAt: new Date().toLocaleString()
+    };
+
+    const existingComplaints =
+      JSON.parse(localStorage.getItem("complaints")) || [];
+
+    localStorage.setItem(
+      "complaints",
+      JSON.stringify([...existingComplaints, newComplaint])
+    );
+
     alert("Complaint Submitted Successfully!");
+
+    // Reset form
     setLocation("");
     setDescription("");
+    setType("Plastic");
     setImage(null);
   };
 
   return (
     <div className="card">
-      <h2>Report Waste</h2>
+      <h2 style={{ marginBottom: "1rem" }}>Report Waste</h2>
 
       <form onSubmit={handleSubmit}>
         <input
@@ -59,13 +79,24 @@ function ReportWaste() {
           required
         />
 
-        <input type="file" onChange={handleImage} className="input" />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImage}
+          className="input"
+        />
 
         {image && (
           <img
             src={image}
             alt="Preview"
-            style={{ width: "100%", marginTop: "10px", borderRadius: "10px" }}
+            style={{
+              width: "100%",
+              marginTop: "10px",
+              borderRadius: "10px",
+              maxHeight: "300px",
+              objectFit: "cover"
+            }}
           />
         )}
 
