@@ -18,9 +18,11 @@ function Navbar() {
 
 const navStyle = {
   padding: "1rem",
-  background: "#2e7d32",
-  textAlign: "center"
+  background: "linear-gradient(135deg, #1b5e20, #2e7d32)",
+  textAlign: "center",
+  color: "white"
 };
+
 
 const linkStyle = {
   color: "white",

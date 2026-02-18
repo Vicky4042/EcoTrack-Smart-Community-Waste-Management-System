@@ -6,19 +6,21 @@
 }
 
 body {
-  background-color: #f4f6f8;
+  background: #f5f7fa;
 }
 
+/* Layout Container */
 .container {
   width: 95%;
   max-width: 1200px;
   margin: auto;
-  padding: 1rem;
-  text-align: center;
+  padding: 1.5rem;
 }
+
+/* Grid Layout */
 .grid {
   display: grid;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 @media (min-width: 768px) {
@@ -27,10 +29,50 @@ body {
   }
 }
 
+/* Cards */
 .card {
   background: white;
   padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-  text-align: center;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* Inputs */
+.input {
+  width: 100%;
+  padding: 0.8rem;
+  margin: 0.6rem 0;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+/* Buttons */
+.btn {
+  background: linear-gradient(135deg, #2e7d32, #4caf50);
+  color: white;
+  padding: 0.8rem;
+  border: none;
+  border-radius: 10px;
+  width: 100%;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+/* Chart */
+canvas {
+  width: 100% !important;
+  height: auto !important;
 }
