@@ -76,3 +76,28 @@ canvas {
   width: 100% !important;
   height: auto !important;
 }
+
+/* Dark Mode Styles */
+body.dark {
+  background: #121212;
+  color: #f1f1f1;
+}
+
+body.dark .card {
+  background: #1e1e1e;
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.05);
+}
+
+body.dark .input {
+  background: #2a2a2a;
+  color: white;
+  border: 1px solid #444;
+}
+
+body.dark .btn {
+  background: linear-gradient(135deg, #388e3c, #66bb6a);
+}
+
+body.dark nav {
+  background: linear-gradient(135deg, #0d3b12, #1b5e20);
+}

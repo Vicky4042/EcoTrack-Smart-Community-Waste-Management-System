@@ -1,16 +1,42 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function Navbar() {
+  const role = localStorage.getItem("role");
+  const navigate = useNavigate();
+
+  const logout = () => {
+    localStorage.removeItem("role");
+    navigate("/login");
+  };
+
   return (
     <nav style={navStyle}>
-      <h2 style={{ color: "white", fontSize: "16px" }}>
-        EcoTrack – Smart Community Waste Management System
-      </h2>
+      <h3>EcoTrack</h3>
 
-      <div style={{ marginTop: "8px" }}>
-        <Link to="/" style={linkStyle}>Dashboard</Link>
-        <Link to="/report" style={linkStyle}>Report Waste</Link>
-        <Link to="/complaints" style={linkStyle}>Complaints</Link>
+      <div>
+{role === "Admin" && (
+  <Link to="/" style={linkStyle}>Dashboard</Link>
+)}
+
+        {role === "Citizen" && (
+          <Link to="/report" style={linkStyle}>Report</Link>
+        )}
+
+        {role && (
+          <Link to="/complaints" style={linkStyle}>Complaints</Link>
+        )}
+
+        {role && (
+          <>
+            <span style={{ marginLeft: "10px" }}>
+              Logged in as: <strong>{role}</strong>
+            </span>
+
+            <button onClick={logout} style={logoutStyle}>
+              Logout
+            </button>
+          </>
+        )}
       </div>
     </nav>
   );
@@ -18,17 +44,23 @@ function Navbar() {
 
 const navStyle = {
   padding: "1rem",
-  background: "linear-gradient(135deg, #1b5e20, #2e7d32)",
-  textAlign: "center",
-  color: "white"
+  background: "#2e7d32",
+  color: "white",
+  textAlign: "center"
 };
-
 
 const linkStyle = {
   color: "white",
   margin: "0 10px",
-  textDecoration: "none",
-  fontWeight: "bold"
+  textDecoration: "none"
+};
+
+const logoutStyle = {
+  marginLeft: "10px",
+  padding: "6px 12px",
+  borderRadius: "6px",
+  border: "none",
+  cursor: "pointer"
 };
 
 export default Navbar;
