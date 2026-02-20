@@ -13,31 +13,39 @@ function Navbar() {
     <nav style={navStyle}>
       <h3>EcoTrack</h3>
 
-      <div>
-{role === "Admin" && (
-  <Link to="/" style={linkStyle}>Dashboard</Link>
-)}
+ <div>
 
-        {role === "Citizen" && (
-          <Link to="/report" style={linkStyle}>Report</Link>
-        )}
+  {/* Admin Links */}
+  {role === "Admin" && (
+    <>
+      <Link to="/" style={linkStyle}>Dashboard</Link>
+      <Link to="/admin-users" style={linkStyle}>Manage Users</Link>
+    </>
+  )}
 
-        {role && (
-          <Link to="/complaints" style={linkStyle}>Complaints</Link>
-        )}
+  {/* Citizen Link */}
+  {role === "Citizen" && (
+    <Link to="/report" style={linkStyle}>Report</Link>
+  )}
 
-        {role && (
-          <>
-            <span style={{ marginLeft: "10px" }}>
-              Logged in as: <strong>{role}</strong>
-            </span>
+  {/* All Logged Users */}
+  {role && (
+    <Link to="/complaints" style={linkStyle}>Complaints</Link>
+  )}
 
-            <button onClick={logout} style={logoutStyle}>
-              Logout
-            </button>
-          </>
-        )}
-      </div>
+  {role && (
+    <>
+      <span style={{ marginLeft: "10px" }}>
+        Logged in as: <strong>{role}</strong>
+      </span>
+
+      <button onClick={logout} style={logoutStyle}>
+        Logout
+      </button>
+    </>
+  )}
+
+</div>
     </nav>
   );
 }

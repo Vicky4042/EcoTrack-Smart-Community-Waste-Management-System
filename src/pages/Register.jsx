@@ -1,30 +1,36 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function Login() {
+function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = () => {
+  const handleRegister = () => {
     const users = JSON.parse(localStorage.getItem("users")) || [];
 
-    const foundUser = users.find(
-      u => u.email === email && u.password === password
-    );
+    const exists = users.find(u => u.email === email);
 
-    if (foundUser) {
-      localStorage.setItem("role", foundUser.role);
-      localStorage.setItem("userEmail", foundUser.email);
-      navigate("/");
-    } else {
-      alert("Invalid credentials");
+    if (exists) {
+      alert("User already exists");
+      return;
     }
+
+    users.push({
+      email,
+      password,
+      role: "Citizen"
+    });
+
+    localStorage.setItem("users", JSON.stringify(users));
+
+    alert("Registered successfully");
+    navigate("/login");
   };
 
   return (
     <div className="card">
-      <h2>Login</h2>
+      <h2>Citizen Register</h2>
 
       <input
         type="email"
@@ -42,21 +48,11 @@ function Login() {
         onChange={(e) => setPassword(e.target.value)}
       />
 
-      <button className="btn" onClick={handleLogin}>
-        Login
+      <button className="btn" onClick={handleRegister}>
+        Register
       </button>
-
-      <p style={{ marginTop: "10px" }}>
-        New User?{" "}
-        <span
-          style={{ color: "blue", cursor: "pointer" }}
-          onClick={() => navigate("/register")}
-        >
-          Register here
-        </span>
-      </p>
     </div>
   );
 }
 
-export default Login;
+export default Register;
