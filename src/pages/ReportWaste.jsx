@@ -1,10 +1,60 @@
 import { useState } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  useMapEvents
+} from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+
+// Fix marker icon issue in Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl:
+    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png"
+});
+
+function LocationPicker({ setLocation, setPosition }) {
+  useMapEvents({
+    async click(e) {
+      const { lat, lng } = e.latlng;
+
+      setPosition([lat, lng]);
+
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+        );
+
+        const data = await response.json();
+
+        if (data && data.display_name) {
+          setLocation(data.display_name);
+        } else {
+          setLocation(`${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+        }
+      } catch (error) {
+        console.error("Reverse geocoding failed:", error);
+        setLocation(`${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+      }
+    }
+  });
+
+  return null;
+}
 
 function ReportWaste() {
   const [location, setLocation] = useState("");
   const [type, setType] = useState("Plastic");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState(null);
+  const [priority, setPriority] = useState("Low");
+  const [position, setPosition] = useState(null);
 
   const handleImage = (e) => {
     const file = e.target.files[0];
@@ -27,7 +77,8 @@ function ReportWaste() {
       type,
       description,
       status: "Pending",
-      createdAt: new Date().toLocaleString()
+      assignedTo: null,
+      priority
     };
 
     const existingComplaints =
@@ -45,6 +96,8 @@ function ReportWaste() {
     setDescription("");
     setType("Plastic");
     setImage(null);
+    setPriority("Low");
+    setPosition(null);
   };
 
   return (
@@ -52,15 +105,45 @@ function ReportWaste() {
       <h2 style={{ marginBottom: "1rem" }}>Report Waste</h2>
 
       <form onSubmit={handleSubmit}>
+
+        {/* 🔥 MAP SECTION */}
+        <MapContainer
+          center={[12.9716, 77.5946]} // Bangalore default
+          zoom={13}
+          style={{ height: "300px", marginBottom: "1rem" }}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <LocationPicker
+            setLocation={setLocation}
+            setPosition={setPosition}
+          />
+          {position && <Marker position={position} />}
+        </MapContainer>
+
+        {/* Priority */}
+        <select
+          className="input"
+          value={priority}
+          onChange={(e) => setPriority(e.target.value)}
+        >
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+
+        {/* Location Auto Filled */}
         <input
           type="text"
-          placeholder="Enter Location"
+          placeholder="Click on map to select location"
           value={location}
-          onChange={(e) => setLocation(e.target.value)}
+          readOnly
           className="input"
           required
         />
 
+        {/* Waste Type */}
         <select
           value={type}
           onChange={(e) => setType(e.target.value)}
@@ -71,6 +154,7 @@ function ReportWaste() {
           <option>E-Waste</option>
         </select>
 
+        {/* Description */}
         <textarea
           placeholder="Enter Description"
           value={description}
@@ -79,6 +163,7 @@ function ReportWaste() {
           required
         />
 
+        {/* Image Upload */}
         <input
           type="file"
           accept="image/*"

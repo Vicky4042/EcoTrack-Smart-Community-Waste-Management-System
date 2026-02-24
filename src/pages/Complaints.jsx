@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 
 function Complaints() {
   const role = localStorage.getItem("role");
+  const loggedInEmail = localStorage.getItem("userEmail");
+  const users = JSON.parse(localStorage.getItem("users")) || [];
 
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
@@ -28,6 +30,13 @@ function Complaints() {
   const markAsCompleted = (id) => {
     const updated = complaintsData.map((c) =>
       c.id === id ? { ...c, status: "Completed" } : c
+    );
+    updateStorage(updated);
+  };
+
+  const assignWorker = (id, workerEmail) => {
+    const updated = complaintsData.map((c) =>
+      c.id === id ? { ...c, assignedTo: workerEmail } : c
     );
     updateStorage(updated);
   };
@@ -85,8 +94,31 @@ function Complaints() {
           filteredComplaints.map((c) => (
             <div key={c.id} className="card">
               <h3>{c.location}</h3>
+
+              {/* 🔥 PRIORITY DISPLAY */}
+              <p>
+                <strong>Priority:</strong>{" "}
+                <span
+                  style={{
+                    color:
+                      c.priority === "High"
+                        ? "red"
+                        : c.priority === "Medium"
+                        ? "orange"
+                        : "green",
+                    fontWeight: "bold"
+                  }}
+                >
+                  {c.priority || "Low"}
+                </span>
+              </p>
+
               <p><strong>Type:</strong> {c.type}</p>
               <p><strong>Status:</strong> {c.status}</p>
+
+              {c.assignedTo && (
+                <p><strong>Assigned To:</strong> {c.assignedTo}</p>
+              )}
 
               {editingId === c.id ? (
                 <>
@@ -108,19 +140,40 @@ function Complaints() {
 
               <div style={{ marginTop: "10px" }}>
 
-                {/* Worker → Only Mark Completed */}
-                {role === "Worker" && c.status === "Pending" && (
-                  <button
-                    className="btn"
-                    onClick={() => markAsCompleted(c.id)}
-                  >
-                    Mark Completed
-                  </button>
+                {/* Worker → Only if assigned */}
+                {role === "Worker" &&
+                  c.assignedTo === loggedInEmail &&
+                  c.status === "Pending" && (
+                    <button
+                      className="btn"
+                      onClick={() => markAsCompleted(c.id)}
+                    >
+                      Mark Completed
+                    </button>
                 )}
 
-                {/* Admin → Edit + Delete */}
+                {/* Admin Controls */}
                 {role === "Admin" && (
                   <>
+                    <select
+                      className="input"
+                      onChange={(e) =>
+                        assignWorker(c.id, e.target.value)
+                      }
+                    >
+                      <option value="">Assign Worker</option>
+                      {users
+                        .filter((u) => u.role === "Worker")
+                        .map((worker) => (
+                          <option
+                            key={worker.email}
+                            value={worker.email}
+                          >
+                            {worker.email}
+                          </option>
+                        ))}
+                    </select>
+
                     <button
                       className="btn"
                       style={{ marginTop: "5px", background: "#ff9800" }}
