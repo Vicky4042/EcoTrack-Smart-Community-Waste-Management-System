@@ -12,9 +12,9 @@ function Complaints() {
   const [editedText, setEditedText] = useState("");
 
   useEffect(() => {
-    const storedComplaints =
+    const stored =
       JSON.parse(localStorage.getItem("complaints")) || [];
-    setComplaintsData(storedComplaints);
+    setComplaintsData(stored);
   }, []);
 
   const updateStorage = (updatedData) => {
@@ -22,11 +22,13 @@ function Complaints() {
     setComplaintsData(updatedData);
   };
 
+  // 🔥 DELETE
   const deleteComplaint = (id) => {
     const updated = complaintsData.filter((c) => c.id !== id);
     updateStorage(updated);
   };
 
+  // 🔥 ASSIGN WORKER
   const assignWorker = (id, workerEmail) => {
     const updated = complaintsData.map((c) =>
       c.id === id ? { ...c, assignedTo: workerEmail } : c
@@ -34,9 +36,10 @@ function Complaints() {
     updateStorage(updated);
   };
 
-  const startEditing = (id, currentText) => {
+  // 🔥 EDIT
+  const startEditing = (id, text) => {
     setEditingId(id);
-    setEditedText(currentText);
+    setEditedText(text);
   };
 
   const saveEdit = (id) => {
@@ -65,21 +68,23 @@ function Complaints() {
     updateStorage(updated);
   };
 
+  // 🔍 FILTER
   const filteredComplaints = complaintsData.filter((c) => {
-    const matchesSearch = c.location
+    const matchSearch = c.location
       .toLowerCase()
       .includes(search.toLowerCase());
 
-    const matchesFilter =
+    const matchFilter =
       filter === "All" || c.status === filter;
 
-    return matchesSearch && matchesFilter;
+    return matchSearch && matchFilter;
   });
 
   return (
     <div>
       <h2 style={{ marginBottom: "1rem" }}>Complaints List</h2>
 
+      {/* 🔍 SEARCH */}
       <input
         type="text"
         placeholder="Search by location..."
@@ -88,6 +93,7 @@ function Complaints() {
         className="input"
       />
 
+      {/* 🔽 FILTER */}
       <select
         value={filter}
         onChange={(e) => setFilter(e.target.value)}
@@ -95,8 +101,8 @@ function Complaints() {
       >
         <option>All</option>
         <option>Pending</option>
-        <option>Completed</option>
         <option>Waiting Approval</option>
+        <option>Completed</option>
       </select>
 
       <div className="grid">
@@ -107,7 +113,7 @@ function Complaints() {
             <div key={c.id} className="card">
               <h3>{c.location}</h3>
 
-              {/* Priority */}
+              {/* PRIORITY */}
               <p>
                 <strong>Priority:</strong>{" "}
                 <span
@@ -127,7 +133,7 @@ function Complaints() {
 
               <p><strong>Type:</strong> {c.type}</p>
 
-              {/* Status */}
+              {/* STATUS */}
               <p>
                 <strong>Status:</strong>{" "}
                 <span
@@ -145,11 +151,12 @@ function Complaints() {
                 </span>
               </p>
 
+              {/* ASSIGNED */}
               {c.assignedTo && (
                 <p><strong>Assigned To:</strong> {c.assignedTo}</p>
               )}
 
-              {/* Description */}
+              {/* DESCRIPTION */}
               {editingId === c.id ? (
                 <>
                   <textarea
@@ -168,89 +175,103 @@ function Complaints() {
                 <p><strong>Description:</strong> {c.description}</p>
               )}
 
-              {/* 🔥 SHOW IMAGES */}
+              {/* 🖼 BEFORE IMAGE */}
               {c.beforeImage && (
                 <>
                   <p><strong>Before Image:</strong></p>
-                  <img src={c.beforeImage} width="100%" />
+                  <img
+                    src={c.beforeImage}
+                    alt="Before"
+                    style={{ width: "100%", borderRadius: "10px" }}
+                  />
                 </>
               )}
 
+              {/* 🖼 AFTER IMAGE */}
               {c.afterImage && (
                 <>
                   <p><strong>After Image:</strong></p>
-                  <img src={c.afterImage} width="100%" />
+                  <img
+                    src={c.afterImage}
+                    alt="After"
+                    style={{ width: "100%", borderRadius: "10px" }}
+                  />
                 </>
               )}
 
               <div style={{ marginTop: "10px" }}>
 
-                {/* Worker (optional old feature) */}
+                {/* 🔧 WORKER VIEW */}
                 {role === "Worker" &&
                   c.assignedTo === loggedInEmail &&
                   c.status === "Pending" && (
-                    <button
-                      className="btn"
-                      onClick={() =>
-                        alert("Upload images instead")
-                      }
-                    >
-                      Upload Work Proof
-                    </button>
+                    <p style={{ color: "blue" }}>
+                      Upload work proof from Worker Dashboard
+                    </p>
                 )}
 
-                {/* ADMIN CONTROLS */}
+                {/* 👨‍💼 ADMIN CONTROLS */}
                 {role === "Admin" && (
                   <>
-                    {/* Assign Worker */}
-                    <select
-                      className="input"
-                      onChange={(e) =>
-                        assignWorker(c.id, e.target.value)
-                      }
-                    >
-                      <option value="">Assign Worker</option>
-                      {users
-                        .filter((u) => u.role === "Worker")
-                        .map((worker) => (
-                          <option
-                            key={worker.email}
-                            value={worker.email}
-                          >
-                            {worker.email}
-                          </option>
-                        ))}
-                    </select>
+                    {/* ASSIGN */}
+                    {c.status !== "Waiting Approval" && (
+                      <select
+                        className="input"
+                        onChange={(e) =>
+                          assignWorker(c.id, e.target.value)
+                        }
+                      >
+                        <option value="">Assign Worker</option>
+                        {users
+                          .filter((u) => u.role === "Worker")
+                          .map((w) => (
+                            <option key={w.email} value={w.email}>
+                              {w.email}
+                            </option>
+                          ))}
+                      </select>
+                    )}
 
-                    {/* Edit */}
-                    <button
-                      className="btn"
-                      style={{ marginTop: "5px", background: "#ff9800" }}
-                      onClick={() =>
-                        startEditing(c.id, c.description)
-                      }
-                    >
-                      Edit
-                    </button>
+                    {/* EDIT */}
+                    {c.status !== "Waiting Approval" && (
+                      <button
+                        className="btn"
+                        style={{
+                          marginTop: "5px",
+                          background: "#ff9800"
+                        }}
+                        onClick={() =>
+                          startEditing(c.id, c.description)
+                        }
+                      >
+                        Edit
+                      </button>
+                    )}
 
-                    {/* Delete */}
-                    <button
-                      className="btn"
-                      style={{ marginTop: "5px", background: "#d32f2f" }}
-                      onClick={() => deleteComplaint(c.id)}
-                    >
-                      Delete
-                    </button>
+                    {/* DELETE */}
+                    {c.status !== "Waiting Approval" && (
+                      <button
+                        className="btn"
+                        style={{
+                          marginTop: "5px",
+                          background: "#d32f2f"
+                        }}
+                        onClick={() => deleteComplaint(c.id)}
+                      >
+                        Delete
+                      </button>
+                    )}
 
-                    {/* 🔥 APPROVAL BUTTONS */}
+                    {/* 🔥 APPROVAL */}
                     {c.status === "Waiting Approval" && (
                       <>
+                        <p style={{ color: "orange", fontWeight: "bold" }}>
+                          🔍 Awaiting Verification
+                        </p>
+
                         <button
                           className="btn"
-                          style={{
-                            background: "green",
-                            marginTop: "5px"
-                          }}
+                          style={{ background: "green", marginTop: "5px" }}
                           onClick={() => approveWork(c.id)}
                         >
                           Approve
@@ -258,10 +279,7 @@ function Complaints() {
 
                         <button
                           className="btn"
-                          style={{
-                            background: "red",
-                            marginTop: "5px"
-                          }}
+                          style={{ background: "red", marginTop: "5px" }}
                           onClick={() => rejectWork(c.id)}
                         >
                           Reject
