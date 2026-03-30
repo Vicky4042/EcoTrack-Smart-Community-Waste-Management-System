@@ -22,17 +22,46 @@ function WorkerDashboard() {
     loadComplaints();
   }, []);
 
-  const markAsCompleted = (id) => {
+  // 📸 BEFORE IMAGE
+  const handleBeforeImage = (id, e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const imageUrl = URL.createObjectURL(file);
+
     const stored =
       JSON.parse(localStorage.getItem("complaints")) || [];
 
     const updated = stored.map((c) =>
-      c.id === id ? { ...c, status: "Completed" } : c
+      c.id === id ? { ...c, beforeImage: imageUrl } : c
     );
 
     localStorage.setItem("complaints", JSON.stringify(updated));
+    loadComplaints();
+  };
 
-    loadComplaints(); // reload properly
+  // 📸 AFTER IMAGE → WAITING APPROVAL
+  const handleAfterImage = (id, e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const imageUrl = URL.createObjectURL(file);
+
+    const stored =
+      JSON.parse(localStorage.getItem("complaints")) || [];
+
+    const updated = stored.map((c) =>
+      c.id === id
+        ? {
+            ...c,
+            afterImage: imageUrl,
+            status: "Waiting Approval"
+          }
+        : c
+    );
+
+    localStorage.setItem("complaints", JSON.stringify(updated));
+    loadComplaints();
   };
 
   return (
@@ -45,16 +74,80 @@ function WorkerDashboard() {
         complaints.map((c) => (
           <div key={c.id} className="card">
             <h3>{c.location}</h3>
-            <p><strong>Status:</strong> {c.status}</p>
+
+            {/* STATUS */}
+            <p>
+              <strong>Status:</strong>{" "}
+              <span
+                style={{
+                  color:
+                    c.status === "Completed"
+                      ? "green"
+                      : c.status === "Waiting Approval"
+                      ? "orange"
+                      : "red",
+                  fontWeight: "bold"
+                }}
+              >
+                {c.status}
+              </span>
+            </p>
+
             <p>{c.description}</p>
 
-            {c.status === "Pending" && (
-              <button
-                className="btn"
-                onClick={() => markAsCompleted(c.id)}
-              >
-                Mark Completed
-              </button>
+            {/* BEFORE IMAGE */}
+            <p><strong>Upload Before Image:</strong></p>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleBeforeImage(c.id, e)}
+              className="input"
+            />
+
+            {c.beforeImage && (
+              <img
+                src={c.beforeImage}
+                alt="Before"
+                style={{
+                  width: "100%",
+                  marginTop: "10px",
+                  borderRadius: "10px"
+                }}
+              />
+            )}
+
+            {/* AFTER IMAGE */}
+            <p><strong>Upload After Image:</strong></p>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleAfterImage(c.id, e)}
+              className="input"
+            />
+
+            {c.afterImage && (
+              <img
+                src={c.afterImage}
+                alt="After"
+                style={{
+                  width: "100%",
+                  marginTop: "10px",
+                  borderRadius: "10px"
+                }}
+              />
+            )}
+
+            {/* INFO MESSAGE */}
+            {c.status === "Waiting Approval" && (
+              <p style={{ color: "orange", marginTop: "10px" }}>
+                ⏳ Waiting for Admin Approval
+              </p>
+            )}
+
+            {c.status === "Completed" && (
+              <p style={{ color: "green", marginTop: "10px" }}>
+                ✅ Work Approved & Completed
+              </p>
             )}
           </div>
         ))
