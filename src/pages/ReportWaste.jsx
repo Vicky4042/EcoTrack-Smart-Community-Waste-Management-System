@@ -8,7 +8,7 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-// Fix marker icon issue in Leaflet
+// Fix marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -19,6 +19,7 @@ L.Icon.Default.mergeOptions({
     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png"
 });
 
+// 📍 Map Click Handler
 function LocationPicker({ setLocation, setPosition }) {
   useMapEvents({
     async click(e) {
@@ -56,6 +57,7 @@ function ReportWaste() {
   const [priority, setPriority] = useState("Low");
   const [position, setPosition] = useState(null);
 
+  // 📸 Image preview
   const handleImage = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -63,6 +65,7 @@ function ReportWaste() {
     }
   };
 
+  // 🚀 Submit complaint
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -78,7 +81,18 @@ function ReportWaste() {
       description,
       status: "Pending",
       assignedTo: null,
-      priority
+      priority,
+
+      // 🔥 Approval workflow support
+      beforeImage: null,
+      afterImage: null,
+
+      // ⏱ Timestamp
+      createdAt: new Date().toLocaleString(),
+
+      // 📍 Coordinates
+      lat: position?.[0],
+      lng: position?.[1]
     };
 
     const existingComplaints =
@@ -106,9 +120,9 @@ function ReportWaste() {
 
       <form onSubmit={handleSubmit}>
 
-        {/* 🔥 MAP SECTION */}
+        {/* 🗺 MAP */}
         <MapContainer
-          center={[12.9716, 77.5946]} // Bangalore default
+          center={[12.9716, 77.5946]}
           zoom={13}
           style={{ height: "300px", marginBottom: "1rem" }}
         >
@@ -133,7 +147,7 @@ function ReportWaste() {
           <option value="High">High</option>
         </select>
 
-        {/* Location Auto Filled */}
+        {/* Location */}
         <input
           type="text"
           placeholder="Click on map to select location"
@@ -171,6 +185,7 @@ function ReportWaste() {
           className="input"
         />
 
+        {/* Preview */}
         {image && (
           <img
             src={image}
@@ -185,6 +200,7 @@ function ReportWaste() {
           />
         )}
 
+        {/* Submit */}
         <button type="submit" className="btn">
           Submit Complaint
         </button>
