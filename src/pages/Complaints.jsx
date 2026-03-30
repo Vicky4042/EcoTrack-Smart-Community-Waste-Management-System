@@ -27,13 +27,6 @@ function Complaints() {
     updateStorage(updated);
   };
 
-  const markAsCompleted = (id) => {
-    const updated = complaintsData.map((c) =>
-      c.id === id ? { ...c, status: "Completed" } : c
-    );
-    updateStorage(updated);
-  };
-
   const assignWorker = (id, workerEmail) => {
     const updated = complaintsData.map((c) =>
       c.id === id ? { ...c, assignedTo: workerEmail } : c
@@ -52,6 +45,24 @@ function Complaints() {
     );
     updateStorage(updated);
     setEditingId(null);
+  };
+
+  // 🔥 APPROVE
+  const approveWork = (id) => {
+    const updated = complaintsData.map((c) =>
+      c.id === id ? { ...c, status: "Completed" } : c
+    );
+    updateStorage(updated);
+  };
+
+  // 🔥 REJECT
+  const rejectWork = (id) => {
+    const updated = complaintsData.map((c) =>
+      c.id === id
+        ? { ...c, status: "Pending", afterImage: null }
+        : c
+    );
+    updateStorage(updated);
   };
 
   const filteredComplaints = complaintsData.filter((c) => {
@@ -85,6 +96,7 @@ function Complaints() {
         <option>All</option>
         <option>Pending</option>
         <option>Completed</option>
+        <option>Waiting Approval</option>
       </select>
 
       <div className="grid">
@@ -95,7 +107,7 @@ function Complaints() {
             <div key={c.id} className="card">
               <h3>{c.location}</h3>
 
-              {/* 🔥 PRIORITY DISPLAY */}
+              {/* Priority */}
               <p>
                 <strong>Priority:</strong>{" "}
                 <span
@@ -114,12 +126,30 @@ function Complaints() {
               </p>
 
               <p><strong>Type:</strong> {c.type}</p>
-              <p><strong>Status:</strong> {c.status}</p>
+
+              {/* Status */}
+              <p>
+                <strong>Status:</strong>{" "}
+                <span
+                  style={{
+                    color:
+                      c.status === "Completed"
+                        ? "green"
+                        : c.status === "Waiting Approval"
+                        ? "orange"
+                        : "red",
+                    fontWeight: "bold"
+                  }}
+                >
+                  {c.status}
+                </span>
+              </p>
 
               {c.assignedTo && (
                 <p><strong>Assigned To:</strong> {c.assignedTo}</p>
               )}
 
+              {/* Description */}
               {editingId === c.id ? (
                 <>
                   <textarea
@@ -138,23 +168,41 @@ function Complaints() {
                 <p><strong>Description:</strong> {c.description}</p>
               )}
 
+              {/* 🔥 SHOW IMAGES */}
+              {c.beforeImage && (
+                <>
+                  <p><strong>Before Image:</strong></p>
+                  <img src={c.beforeImage} width="100%" />
+                </>
+              )}
+
+              {c.afterImage && (
+                <>
+                  <p><strong>After Image:</strong></p>
+                  <img src={c.afterImage} width="100%" />
+                </>
+              )}
+
               <div style={{ marginTop: "10px" }}>
 
-                {/* Worker → Only if assigned */}
+                {/* Worker (optional old feature) */}
                 {role === "Worker" &&
                   c.assignedTo === loggedInEmail &&
                   c.status === "Pending" && (
                     <button
                       className="btn"
-                      onClick={() => markAsCompleted(c.id)}
+                      onClick={() =>
+                        alert("Upload images instead")
+                      }
                     >
-                      Mark Completed
+                      Upload Work Proof
                     </button>
                 )}
 
-                {/* Admin Controls */}
+                {/* ADMIN CONTROLS */}
                 {role === "Admin" && (
                   <>
+                    {/* Assign Worker */}
                     <select
                       className="input"
                       onChange={(e) =>
@@ -174,6 +222,7 @@ function Complaints() {
                         ))}
                     </select>
 
+                    {/* Edit */}
                     <button
                       className="btn"
                       style={{ marginTop: "5px", background: "#ff9800" }}
@@ -184,6 +233,7 @@ function Complaints() {
                       Edit
                     </button>
 
+                    {/* Delete */}
                     <button
                       className="btn"
                       style={{ marginTop: "5px", background: "#d32f2f" }}
@@ -191,6 +241,33 @@ function Complaints() {
                     >
                       Delete
                     </button>
+
+                    {/* 🔥 APPROVAL BUTTONS */}
+                    {c.status === "Waiting Approval" && (
+                      <>
+                        <button
+                          className="btn"
+                          style={{
+                            background: "green",
+                            marginTop: "5px"
+                          }}
+                          onClick={() => approveWork(c.id)}
+                        >
+                          Approve
+                        </button>
+
+                        <button
+                          className="btn"
+                          style={{
+                            background: "red",
+                            marginTop: "5px"
+                          }}
+                          onClick={() => rejectWork(c.id)}
+                        >
+                          Reject
+                        </button>
+                      </>
+                    )}
                   </>
                 )}
 
