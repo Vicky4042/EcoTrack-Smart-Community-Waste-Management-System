@@ -179,11 +179,12 @@ function ReportWaste() {
 
         {/* Image Upload */}
         <input
-          type="file"
-          accept="image/*"
-          onChange={handleImage}
-          className="input"
-        />
+  type="file"
+  accept="image/*"
+  capture="environment"
+  onChange={handleImage}
+  className="input"
+/>
 
         {/* Preview */}
         {image && (

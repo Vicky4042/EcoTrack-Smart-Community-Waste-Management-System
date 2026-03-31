@@ -98,12 +98,12 @@ function WorkerDashboard() {
             {/* BEFORE IMAGE */}
             <p><strong>Upload Before Image:</strong></p>
             <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleBeforeImage(c.id, e)}
-              className="input"
-            />
-
+  type="file"
+  accept="image/*"
+  capture="environment"
+  onChange={(e) => handleBeforeImage(c.id, e)}
+  className="input"
+/>
             {c.beforeImage && (
               <img
                 src={c.beforeImage}
@@ -118,13 +118,13 @@ function WorkerDashboard() {
 
             {/* AFTER IMAGE */}
             <p><strong>Upload After Image:</strong></p>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => handleAfterImage(c.id, e)}
-              className="input"
-            />
-
+           <input
+  type="file"
+  accept="image/*"
+  capture="environment"
+  onChange={(e) => handleAfterImage(c.id, e)}
+  className="input"
+/>
             {c.afterImage && (
               <img
                 src={c.afterImage}

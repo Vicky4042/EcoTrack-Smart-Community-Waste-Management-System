@@ -20,7 +20,9 @@ function Dashboard() {
     setComplaints(storedComplaints);
   }, []);
 
+  // 📊 CALCULATIONS
   const total = complaints.length;
+
   const pending = complaints.filter(
     (c) => c.status === "Pending"
   ).length;
@@ -29,12 +31,18 @@ function Dashboard() {
     (c) => c.status === "Completed"
   ).length;
 
+  // 🔥 NEW COUNT
+  const waitingApproval = complaints.filter(
+    (c) => c.status === "Waiting Approval"
+  ).length;
+
+  // 📊 CHART DATA (UPDATED)
   const data = {
-    labels: ["Pending", "Completed"],
+    labels: ["Pending", "Waiting Approval", "Completed"],
     datasets: [
       {
-        data: [pending, completed],
-        backgroundColor: ["#ff9800", "#4caf50"],
+        data: [pending, waitingApproval, completed],
+        backgroundColor: ["#ff9800", "#2196f3", "#4caf50"],
         borderWidth: 1
       }
     ]
@@ -49,12 +57,15 @@ function Dashboard() {
     <div>
       <h2 style={{ marginBottom: "1rem" }}>Dashboard Overview</h2>
 
+      {/* 🔥 STATS CARDS */}
       <div className="grid grid-3">
         <StatsCard title="Total Complaints" value={total} />
         <StatsCard title="Pending" value={pending} />
         <StatsCard title="Completed" value={completed} />
+        <StatsCard title="Waiting Approval" value={waitingApproval} />
       </div>
 
+      {/* 📊 CHART */}
       <div
         style={{
           maxWidth: "400px",
