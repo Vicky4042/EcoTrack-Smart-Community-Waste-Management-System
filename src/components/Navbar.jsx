@@ -13,39 +13,45 @@ function Navbar() {
     <nav style={navStyle}>
       <h3>EcoTrack</h3>
 
- <div>
+      <div>
 
-  {/* Admin Links */}
-  {role === "Admin" && (
-    <>
-      <Link to="/" style={linkStyle}>Dashboard</Link>
-      <Link to="/admin-users" style={linkStyle}>Manage Users</Link>
-    </>
-  )}
+        {/* Admin Links */}
+        {role === "Admin" && (
+          <>
+            <Link to="/" style={linkStyle}>Dashboard</Link>
+            <Link to="/admin-users" style={linkStyle}>Manage Users</Link>
+          </>
+        )}
 
-  {/* Citizen Link */}
-  {role === "Citizen" && (
-    <Link to="/report" style={linkStyle}>Report</Link>
-  )}
+        {/* Citizen Link */}
+        {role === "Citizen" && (
+          <Link to="/report" style={linkStyle}>Report</Link>
+        )}
 
-  {/* All Logged Users */}
-  {role && (
-    <Link to="/complaints" style={linkStyle}>Complaints</Link>
-  )}
+        {/* 🔧 Worker Link (NEW) */}
+        {role === "Worker" && (
+          <Link to="/worker" style={linkStyle}>Worker Dashboard</Link>
+        )}
 
-  {role && (
-    <>
-      <span style={{ marginLeft: "10px" }}>
-        Logged in as: <strong>{role}</strong>
-      </span>
+        {/* Complaints (NOT for Worker) */}
+        {role && role !== "Worker" && (
+          <Link to="/complaints" style={linkStyle}>Complaints</Link>
+        )}
 
-      <button onClick={logout} style={logoutStyle}>
-        Logout
-      </button>
-    </>
-  )}
+        {/* User Info */}
+        {role && (
+          <>
+            <span style={{ marginLeft: "10px" }}>
+              Logged in as: <strong>{role}</strong>
+            </span>
 
-</div>
+            <button onClick={logout} style={logoutStyle}>
+              Logout
+            </button>
+          </>
+        )}
+
+      </div>
     </nav>
   );
 }
