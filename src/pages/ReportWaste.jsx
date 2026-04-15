@@ -7,8 +7,9 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import CameraCapture from "../components/CameraCapture";
 
-// Fix marker icon issue
+// Fix marker icon
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -19,29 +20,26 @@ L.Icon.Default.mergeOptions({
     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png"
 });
 
-// 📍 Map Click Handler
+// 📍 Map click handler
 function LocationPicker({ setLocation, setPosition }) {
   useMapEvents({
     async click(e) {
       const { lat, lng } = e.latlng;
-
       setPosition([lat, lng]);
 
       try {
-        const response = await fetch(
+        const res = await fetch(
           `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
         );
+        const data = await res.json();
 
-        const data = await response.json();
-
-        if (data && data.display_name) {
+        if (data?.display_name) {
           setLocation(data.display_name);
         } else {
-          setLocation(`${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+          setLocation(`${lat}, ${lng}`);
         }
-      } catch (error) {
-        console.error("Reverse geocoding failed:", error);
-        setLocation(`${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+      } catch {
+        setLocation(`${lat}, ${lng}`);
       }
     }
   });
@@ -57,15 +55,11 @@ function ReportWaste() {
   const [priority, setPriority] = useState("Low");
   const [position, setPosition] = useState(null);
 
-  // 📸 Image preview
-  const handleImage = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImage(URL.createObjectURL(file));
-    }
+  // 📸 Capture image
+  const handleCapture = (img) => {
+    setImage(img);
   };
 
-  // 🚀 Submit complaint
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -83,29 +77,31 @@ function ReportWaste() {
       assignedTo: null,
       priority,
 
-      // 🔥 Approval workflow support
+      // 🔥 Approval system
       beforeImage: null,
       afterImage: null,
 
-      // ⏱ Timestamp
-      createdAt: new Date().toLocaleString(),
+      // 📸 Captured image
+      image,
 
       // 📍 Coordinates
       lat: position?.[0],
-      lng: position?.[1]
+      lng: position?.[1],
+
+      createdAt: new Date().toLocaleString()
     };
 
-    const existingComplaints =
+    const existing =
       JSON.parse(localStorage.getItem("complaints")) || [];
 
     localStorage.setItem(
       "complaints",
-      JSON.stringify([...existingComplaints, newComplaint])
+      JSON.stringify([...existing, newComplaint])
     );
 
     alert("Complaint Submitted Successfully!");
 
-    // Reset form
+    // Reset
     setLocation("");
     setDescription("");
     setType("Plastic");
@@ -126,9 +122,7 @@ function ReportWaste() {
           zoom={13}
           style={{ height: "300px", marginBottom: "1rem" }}
         >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <LocationPicker
             setLocation={setLocation}
             setPosition={setPosition}
@@ -136,28 +130,28 @@ function ReportWaste() {
           {position && <Marker position={position} />}
         </MapContainer>
 
-        {/* Priority */}
+        {/* PRIORITY */}
         <select
           className="input"
           value={priority}
           onChange={(e) => setPriority(e.target.value)}
         >
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
+          <option>Low</option>
+          <option>Medium</option>
+          <option>High</option>
         </select>
 
-        {/* Location */}
+        {/* LOCATION */}
         <input
           type="text"
-          placeholder="Click on map to select location"
+          placeholder="Click map to select location"
           value={location}
           readOnly
           className="input"
           required
         />
 
-        {/* Waste Type */}
+        {/* TYPE */}
         <select
           value={type}
           onChange={(e) => setType(e.target.value)}
@@ -168,7 +162,7 @@ function ReportWaste() {
           <option>E-Waste</option>
         </select>
 
-        {/* Description */}
+        {/* DESCRIPTION */}
         <textarea
           placeholder="Enter Description"
           value={description}
@@ -177,31 +171,24 @@ function ReportWaste() {
           required
         />
 
-        {/* Image Upload */}
-        <input
-  type="file"
-  accept="image/*"
-  capture="environment"
-  onChange={handleImage}
-  className="input"
-/>
+        {/* 🔥 CAMERA */}
+        <h4>Capture Image</h4>
+        <CameraCapture onCapture={handleCapture} />
 
-        {/* Preview */}
+        {/* PREVIEW */}
         {image && (
           <img
             src={image}
-            alt="Preview"
+            alt="Captured"
             style={{
               width: "100%",
               marginTop: "10px",
-              borderRadius: "10px",
-              maxHeight: "300px",
-              objectFit: "cover"
+              borderRadius: "10px"
             }}
           />
         )}
 
-        {/* Submit */}
+        {/* SUBMIT */}
         <button type="submit" className="btn">
           Submit Complaint
         </button>

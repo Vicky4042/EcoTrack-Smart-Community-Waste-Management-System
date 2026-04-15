@@ -22,13 +22,13 @@ function Complaints() {
     setComplaintsData(updatedData);
   };
 
-  // 🔥 DELETE
+  // DELETE
   const deleteComplaint = (id) => {
     const updated = complaintsData.filter((c) => c.id !== id);
     updateStorage(updated);
   };
 
-  // 🔥 ASSIGN WORKER
+  // ASSIGN WORKER
   const assignWorker = (id, workerEmail) => {
     const updated = complaintsData.map((c) =>
       c.id === id ? { ...c, assignedTo: workerEmail } : c
@@ -36,7 +36,7 @@ function Complaints() {
     updateStorage(updated);
   };
 
-  // 🔥 EDIT
+  // EDIT
   const startEditing = (id, text) => {
     setEditingId(id);
     setEditedText(text);
@@ -50,7 +50,7 @@ function Complaints() {
     setEditingId(null);
   };
 
-  // 🔥 APPROVE
+  // APPROVE
   const approveWork = (id) => {
     const updated = complaintsData.map((c) =>
       c.id === id ? { ...c, status: "Completed" } : c
@@ -58,7 +58,7 @@ function Complaints() {
     updateStorage(updated);
   };
 
-  // 🔥 REJECT
+  // REJECT
   const rejectWork = (id) => {
     const updated = complaintsData.map((c) =>
       c.id === id
@@ -68,7 +68,7 @@ function Complaints() {
     updateStorage(updated);
   };
 
-  // 🔍 FILTER
+  // FILTER
   const filteredComplaints = complaintsData.filter((c) => {
     const matchSearch = c.location
       .toLowerCase()
@@ -84,7 +84,7 @@ function Complaints() {
     <div>
       <h2 style={{ marginBottom: "1rem" }}>Complaints List</h2>
 
-      {/* 🔍 SEARCH */}
+      {/* SEARCH */}
       <input
         type="text"
         placeholder="Search by location..."
@@ -93,7 +93,7 @@ function Complaints() {
         className="input"
       />
 
-      {/* 🔽 FILTER */}
+      {/* FILTER */}
       <select
         value={filter}
         onChange={(e) => setFilter(e.target.value)}
@@ -175,33 +175,41 @@ function Complaints() {
                 <p><strong>Description:</strong> {c.description}</p>
               )}
 
-              {/* 🖼 BEFORE IMAGE */}
-              {c.beforeImage && (
+              {/* 🔥 USER IMAGE */}
+              {c.image && (
                 <>
-                  <p><strong>Before Image:</strong></p>
+                  <p><strong>Reported Image:</strong></p>
                   <img
-                    src={c.beforeImage}
-                    alt="Before"
-                    style={{ width: "100%", borderRadius: "10px" }}
+                    src={c.image}
+                    alt="Garbage"
+                    style={{
+                      width: "100%",
+                      borderRadius: "10px",
+                      marginTop: "10px"
+                    }}
                   />
                 </>
               )}
 
-              {/* 🖼 AFTER IMAGE */}
+              {/* 🔥 AFTER IMAGE */}
               {c.afterImage && (
                 <>
                   <p><strong>After Image:</strong></p>
                   <img
                     src={c.afterImage}
                     alt="After"
-                    style={{ width: "100%", borderRadius: "10px" }}
+                    style={{
+                      width: "100%",
+                      borderRadius: "10px",
+                      marginTop: "10px"
+                    }}
                   />
                 </>
               )}
 
               <div style={{ marginTop: "10px" }}>
 
-                {/* 🔧 WORKER VIEW */}
+                {/* WORKER VIEW */}
                 {role === "Worker" &&
                   c.assignedTo === loggedInEmail &&
                   c.status === "Pending" && (
@@ -210,10 +218,9 @@ function Complaints() {
                     </p>
                 )}
 
-                {/* 👨‍💼 ADMIN CONTROLS */}
+                {/* ADMIN CONTROLS */}
                 {role === "Admin" && (
                   <>
-                    {/* ASSIGN */}
                     {c.status !== "Waiting Approval" && (
                       <select
                         className="input"
@@ -232,7 +239,6 @@ function Complaints() {
                       </select>
                     )}
 
-                    {/* EDIT */}
                     {c.status !== "Waiting Approval" && (
                       <button
                         className="btn"
@@ -248,7 +254,6 @@ function Complaints() {
                       </button>
                     )}
 
-                    {/* DELETE */}
                     {c.status !== "Waiting Approval" && (
                       <button
                         className="btn"
@@ -262,7 +267,7 @@ function Complaints() {
                       </button>
                     )}
 
-                    {/* 🔥 APPROVAL */}
+                    {/* APPROVAL */}
                     {c.status === "Waiting Approval" && (
                       <>
                         <p style={{ color: "orange", fontWeight: "bold" }}>

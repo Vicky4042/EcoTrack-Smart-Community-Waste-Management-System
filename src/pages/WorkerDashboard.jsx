@@ -8,60 +8,46 @@ function WorkerDashboard() {
     const stored =
       JSON.parse(localStorage.getItem("complaints")) || [];
 
-    const assignedComplaints = stored.filter(
+    const assigned = stored.filter(
       (c) =>
         c.assignedTo &&
         c.assignedTo.trim().toLowerCase() ===
           loggedInEmail?.trim().toLowerCase()
     );
 
-    setComplaints(assignedComplaints);
+    setComplaints(assigned);
   };
 
   useEffect(() => {
     loadComplaints();
   }, []);
 
-  // 📸 BEFORE IMAGE
-  const handleBeforeImage = (id, e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const imageUrl = URL.createObjectURL(file);
-
-    const stored =
-      JSON.parse(localStorage.getItem("complaints")) || [];
-
-    const updated = stored.map((c) =>
-      c.id === id ? { ...c, beforeImage: imageUrl } : c
-    );
-
-    localStorage.setItem("complaints", JSON.stringify(updated));
-    loadComplaints();
-  };
-
-  // 📸 AFTER IMAGE → WAITING APPROVAL
+  // 🔥 AFTER IMAGE (FIXED)
   const handleAfterImage = (id, e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const imageUrl = URL.createObjectURL(file);
+    const reader = new FileReader();
 
-    const stored =
-      JSON.parse(localStorage.getItem("complaints")) || [];
+    reader.onloadend = () => {
+      const stored =
+        JSON.parse(localStorage.getItem("complaints")) || [];
 
-    const updated = stored.map((c) =>
-      c.id === id
-        ? {
-            ...c,
-            afterImage: imageUrl,
-            status: "Waiting Approval"
-          }
-        : c
-    );
+      const updated = stored.map((c) =>
+        c.id === id
+          ? {
+              ...c,
+              afterImage: reader.result, // ✅ base64
+              status: "Waiting Approval"
+            }
+          : c
+      );
 
-    localStorage.setItem("complaints", JSON.stringify(updated));
-    loadComplaints();
+      localStorage.setItem("complaints", JSON.stringify(updated));
+      loadComplaints();
+    };
+
+    reader.readAsDataURL(file); // 🔥 IMPORTANT
   };
 
   return (
@@ -95,36 +81,18 @@ function WorkerDashboard() {
 
             <p>{c.description}</p>
 
-            {/* BEFORE IMAGE */}
-            <p><strong>Upload Before Image:</strong></p>
-            <input
-  type="file"
-  accept="image/*"
-  capture="environment"
-  onChange={(e) => handleBeforeImage(c.id, e)}
-  className="input"
-/>
-            {c.beforeImage && (
-              <img
-                src={c.beforeImage}
-                alt="Before"
-                style={{
-                  width: "100%",
-                  marginTop: "10px",
-                  borderRadius: "10px"
-                }}
-              />
-            )}
+            {/* AFTER IMAGE ONLY */}
+            <p><strong>Upload After Work Image:</strong></p>
 
-            {/* AFTER IMAGE */}
-            <p><strong>Upload After Image:</strong></p>
-           <input
-  type="file"
-  accept="image/*"
-  capture="environment"
-  onChange={(e) => handleAfterImage(c.id, e)}
-  className="input"
-/>
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={(e) => handleAfterImage(c.id, e)}
+              className="input"
+            />
+
+            {/* PREVIEW */}
             {c.afterImage && (
               <img
                 src={c.afterImage}
@@ -137,7 +105,7 @@ function WorkerDashboard() {
               />
             )}
 
-            {/* INFO MESSAGE */}
+            {/* STATUS MESSAGE */}
             {c.status === "Waiting Approval" && (
               <p style={{ color: "orange", marginTop: "10px" }}>
                 ⏳ Waiting for Admin Approval
