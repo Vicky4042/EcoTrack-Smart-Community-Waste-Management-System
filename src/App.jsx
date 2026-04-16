@@ -1,9 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useEffect } from "react";
 
+import Welcome from "./pages/Welcome";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import Profile from "./pages/Profile";
 import Dashboard from "./pages/Dashboard";
 import ReportWaste from "./pages/ReportWaste";
 import Complaints from "./pages/Complaints";
@@ -11,42 +12,39 @@ import WorkerDashboard from "./pages/WorkerDashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AdminUsers from "./pages/AdminUsers";
+
 function App() {
 
-  // Initialize default Admin
- useEffect(() => {
-  let users = JSON.parse(localStorage.getItem("users")) || [];
+  // Initialize default users
+  useEffect(() => {
+    let users = JSON.parse(localStorage.getItem("users")) || [];
 
-  // Check Admin
-  const adminExists = users.some(
-    (u) => u.email === "admin@ecotrack.com"
-  );
+    const adminExists = users.some(
+      (u) => u.email === "admin@ecotrack.com"
+    );
 
-  // Check Worker
-  const workerExists = users.some(
-    (u) => u.email === "worker@ecotrack.com"
-  );
+    const workerExists = users.some(
+      (u) => u.email === "worker@ecotrack.com"
+    );
 
-  // Add Admin if missing
-  if (!adminExists) {
-    users.push({
-      email: "admin@ecotrack.com",
-      password: "admin123",
-      role: "Admin"
-    });
-  }
+    if (!adminExists) {
+      users.push({
+        email: "admin@ecotrack.com",
+        password: "admin123",
+        role: "Admin"
+      });
+    }
 
-  // Add Worker if missing
-  if (!workerExists) {
-    users.push({
-      email: "worker@ecotrack.com",
-      password: "worker123",
-      role: "Worker"
-    });
-  }
+    if (!workerExists) {
+      users.push({
+        email: "worker@ecotrack.com",
+        password: "worker123",
+        role: "Worker"
+      });
+    }
 
-  localStorage.setItem("users", JSON.stringify(users));
-}, []);
+    localStorage.setItem("users", JSON.stringify(users));
+  }, []);
 
   return (
     <BrowserRouter>
@@ -55,11 +53,15 @@ function App() {
       <div className="container">
         <Routes>
 
+          {/* 🔥 WELCOME PAGE */}
+          <Route path="/" element={<Welcome />} />
+
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
+          {/* 🔥 DASHBOARD MOVED */}
           <Route
-            path="/"
+            path="/dashboard"
             element={
               <ProtectedRoute allowedRoles={["Admin"]}>
                 <Dashboard />
@@ -75,6 +77,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+
 
           <Route
             path="/worker"
@@ -93,15 +96,25 @@ function App() {
               </ProtectedRoute>
             }
           />
+
           <Route
-  path="/admin-users"
+            path="/admin-users"
+            element={
+              <ProtectedRoute allowedRoles={["Admin"]}>
+                <AdminUsers />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+  path="/profile"
   element={
-    <ProtectedRoute allowedRoles={["Admin"]}>
-      <AdminUsers />
+    <ProtectedRoute>
+      <Profile />
     </ProtectedRoute>
   }
 />
- </Routes>
+
+        </Routes>
       </div>
     </BrowserRouter>
   );

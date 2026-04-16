@@ -16,7 +16,15 @@ function Login() {
     if (foundUser) {
       localStorage.setItem("role", foundUser.role);
       localStorage.setItem("userEmail", foundUser.email);
-      navigate("/");
+
+      // 🔥 FIXED REDIRECT
+      if (foundUser.role === "Admin") {
+        navigate("/dashboard");
+      } else if (foundUser.role === "Worker") {
+        navigate("/worker");
+      } else {
+        navigate("/report");
+      }
     } else {
       alert("Invalid credentials");
     }
